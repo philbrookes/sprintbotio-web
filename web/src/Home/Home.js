@@ -1,26 +1,33 @@
 import React, { Component } from 'react';
+import {Grid, Row, Col, ListGroup, ListGroupItem, Panel} from 'react-bootstrap';
+
 import Header from '../Header/Header';
+import Banner from '../Banner/Banner';
+import Registration from '../Registration/Registration';
+import Features from '../Features/Features';
 
 class Home extends Component {
     render() {
-        return (<Header></Header>);
+        return (<Grid>
+            <Row className="show-grid">
+                <Col xs={12} md={12}>
+                    <Header></Header>
+                </Col>
+                <Col xs={12} md={12}>
+                    <Banner fgcolor="white" bgcolor="purple">Sprint management... Automated</Banner>
+                </Col>
+                <Col xs={12} md={12}>
+                    <Features></Features>
+
+                </Col>
+                <Col xs={12} md={12}>
+
+                    <Registration></Registration>
+                </Col>
+            </Row>
+        </Grid>);
     }
 }
 
 
 export default Home;
-
-
-//<div className="body-block register">
-//                     <div className="content">
-//                         <p>Sprint management... Automated.</p>
-//                         <form className="registration form-inline">
-//                             <input type="text" className="form-control" placeholder="email"/>
-//                             <input type="password" className="form-control" placeholder="password"/>
-//                             <button className="button button-brand btn-med mb-5 mb-med-2">Register</button>
-//                         </form>
-//                     </div>
-//                 </div>
-//                 <div className="footer"></div>
-//                 <link rel="stylesheet" href="/stylesheets/main.css" />
-//                 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossOrigin="anonymous">
