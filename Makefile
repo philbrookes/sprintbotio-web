@@ -35,3 +35,4 @@ push:
 .PHONY: compile
 compile:
 	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o=$(COMPILE_TARGET) ./cmd/web
+	cd web && npm run build

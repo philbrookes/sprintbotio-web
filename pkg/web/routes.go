@@ -7,5 +7,5 @@ import (
 
 //RegisterRoutes for any web end-points
 func RegisterRoutes(router *mux.Router) {
-	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./sprintbotio/build/")))
+	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./web/build/")))
 }
