@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {Grid, Row, Col, ListGroup, ListGroupItem, Panel} from 'react-bootstrap';
+import {Grid, Row, Col} from 'react-bootstrap';
 
 import Header from '../Header/Header';
 import Banner from '../Banner/Banner';

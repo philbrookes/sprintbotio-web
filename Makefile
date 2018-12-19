@@ -33,6 +33,12 @@ push:
 	docker push ${REG}/${ORG}/${PROJECT}:${TAG}
 
 .PHONY: compile
-compile:
+compile: compile-api compile-web
+
+.PHONY: compile-api
+compile-api:
 	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o=$(COMPILE_TARGET) ./cmd/web
+
+.PHONY: compile-web
+compile-web:
 	cd web && npm run build
