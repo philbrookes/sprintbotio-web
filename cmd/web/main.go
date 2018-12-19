@@ -19,7 +19,7 @@ func main() {
 		portString = v
 	}
 
-	con, err := sql.Open("mysql", os.Getenv("MYSQL_USER")+":"+os.Getenv("MYSQL_PASS")+"@/mysql")
+	con, err := sql.Open("mysql", os.Getenv("MYSQL_USER")+":"+os.Getenv("MYSQL_PASS")+"@tcp(" + os.Getenv("MYSQL_HOST")+")/mysql")
 	if err != nil {
 		panic(err)
 	}

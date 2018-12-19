@@ -1,11 +1,13 @@
 import React, {Component} from 'react';
 import {FormGroup, FormControl, Button, Grid, Row, Col} from "react-bootstrap";
 import newApi from '../ApiClient/Api';
+import Spinner from './Spinner-1s-200px.apng';
+import Tick from './tick.png';
 
 class Registration extends Component{
     constructor(props) {
         super(props);
-        this.state = {email: ''};
+        this.state = {email: '', api: 0};
 
         this.handleChange = this.handleChange.bind(this);
         this.doRegister = this.doRegister.bind(this);
@@ -17,6 +19,28 @@ class Registration extends Component{
 
 
     render() {
+        if(this.state.api === 0){
+            return this.registerForm()
+        }
+        if(this.state.api === 1) {
+            return this.throbber()
+        }
+        if(this.state.api === 2){
+            return this.registered()
+        }
+    }
+    doRegister(event) {
+        let me = this;
+        this.setState({api: 1, email: this.state.email});
+        event.preventDefault();
+        let api = newApi();
+        api.register(this.state.email).then(function(response) {
+            me.setState({api: 2, email: me.state.email});
+            return response.json();
+        });
+    }
+
+    registerForm(){
         return (<form>
             <FormGroup controlId="register">
                 <Grid>
@@ -37,12 +61,11 @@ class Registration extends Component{
             </FormGroup>
         </form>)
     }
-    doRegister(event) {
-        event.preventDefault();
-        let api = newApi();
-        api.register(this.state.email).then(function(response) {
-            return response.json();
-        });
+    throbber(){
+            return(<img  alt="registering..." width="64px" height="64px" src={Spinner}/>)
+    }
+    registered(){
+            return(<img alt="registration successful" width="64px" height="64px" src={Tick}/>)
     }
 }
 
