@@ -1,0 +1,168 @@
+apiVersion: v1
+kind: Template
+metadata:
+  name: sprintbot-web
+objects:
+  - kind: PersistentVolumeClaim
+    apiVersion: v1
+    metadata:
+      name: mysql-pv-claim
+    spec:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 10Gi
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: sprintbot-web
+      labels:
+        app:  sprintbot
+        service: sprintbot-web
+    spec:
+      selector:
+        app:  sprintbot
+        service: sprintbot-web
+      ports:
+        - protocol: TCP
+          port: 80
+          targetPort: 8080
+  - apiVersion: extensions/v1beta1
+    kind: Deployment
+    metadata:
+      name: sprintbot-web
+      labels:
+        app:  sprintbot
+        service: sprintbot-web
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          app:  sprintbot
+      template:
+        metadata:
+          labels:
+            app:  sprintbot
+            service: sprintbot-web
+        spec:
+          containers:
+            - name: sprintbot-web
+              image: quay.io/philbrookes/sprintbotio-web:0.0.1
+              imagePullPolicy: Always
+              env:
+                - name: POD_NAMESPACE
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.namespace
+                - name: MYSQL_HOST
+                  value: sprintbot-mysql
+                - name: MYSQL_USER
+                  value: root
+                - name: MYSQL_PASS
+                  value: ${MYSQL_PASS}
+                - name: MYSQL_DATABASE
+                  value: ${MYSQL_DATABASE}
+                - name: SCHEMA_FILE
+                  value: ${SCHEMA_FILE}
+              ports:
+                - containerPort: 8080
+              readinessProbe:
+                tcpSocket:
+                  port: 8080
+                failureThreshold: 1
+                initialDelaySeconds: 10
+                periodSeconds: 10
+                successThreshold: 1
+                timeoutSeconds: 2
+              livenessProbe:
+                tcpSocket:
+                  port: 8080
+                failureThreshold: 3
+                initialDelaySeconds: 10
+                periodSeconds: 10
+                successThreshold: 1
+                timeoutSeconds: 2
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: sprintbot-mysql
+      labels:
+        app:  sprintbot
+        service: sprintbot-mysql
+    spec:
+      selector:
+        app:  sprintbot
+        service: sprintbot-mysql
+      ports:
+        - protocol: TCP
+          port: 3306
+          targetPort: 3306
+  - apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+    kind: Deployment
+    metadata:
+      name: mysql
+      labels:
+        app: sprintbot
+        service: sprintbot-mysql
+    spec:
+      selector:
+        matchLabels:
+          app: sprintbot
+      strategy:
+        type: Recreate
+      template:
+        metadata:
+          labels:
+            app: sprintbot
+            service: sprintbot-mysql
+        spec:
+          containers:
+            - image: mysql:5.6
+              name: sprintbot-mysql
+              env:
+                # Use secret in real usage
+                - name: MYSQL_ROOT_PASSWORD
+                  value: ${MYSQL_PASS}
+              ports:
+                - containerPort: 3306
+                  name: mysql
+              volumeMounts:
+                - name: mysql-persistent-storage
+                  mountPath: /var/lib/mysql
+          volumes:
+            - name: mysql-persistent-storage
+              persistentVolumeClaim:
+                claimName: mysql-pv-claim
+  - apiVersion: route.openshift.io/v1
+    kind: Route
+    metadata:
+      annotations:
+        openshift.io/host.generated: 'true'
+      labels:
+        app: sprintbot
+        service: sprintbot-web
+      name: sprintbot-web
+    spec:
+      to:
+        kind: Service
+        name: sprintbot-web
+        weight: 100
+      wildcardPolicy: None
+parameters:
+  - name: NAMESPACE
+    description: Namespace of the project that is being deployed to
+    value: "sprintbot-web"
+    required: true
+  - name: MYSQL_PASS
+    description: mysql password
+    value: "qWeRtYuIoP!2£4%6&8(0"
+    required: true
+  - name: MYSQL_DATABASE
+    description: name of mysql database to use
+    value: "sprintbot"
+    required: true
+  - name: SCHEMA_FILE
+    description: file with schema definition
+    value: "./database.sql"
+    required: true
